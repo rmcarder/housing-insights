@@ -4,12 +4,14 @@ var map = new mapboxgl.Map({
     container: 'map', // container id
     style: 'mapbox://styles/rmcarder/cizru0urw00252ro740x73cea',
 	zoom: 11,
-	center: [-76.92, 38.9072],
+	center: [-76.92, 38.9072],  //center on DC
 	minZoom: 3,
 	preserveDrawingBuffer: true});
 
 map.on('load', function() {
 
+
+//add boundary polygons for zip, tract, ward, neighborhood, and zillow. Visibility set to none until buttons clicked.
 map.addSource("zip", {
 "type": "geojson",
 "data": "data/zip.geojson"
@@ -98,7 +100,8 @@ map.addLayer({
             "line-width": 1
         }
 });
-//zillow color 57CABD
+
+//Add buildings from project.csv. Needs to be changed to S3.
 
 map.addSource("project", {
 "type": "geojson",
@@ -112,8 +115,8 @@ map.addSource("project", {
         'paint': {
             // make circles larger as the user zooms from z12 to z22
             'circle-radius': {
-                'base': 1.75,
-                'stops': [[12, 3], [22, 180]]
+                'base': 1.75,  //havent figured out exactly how this base value works
+                'stops': [[12, 3], [22, 180]] //setting to 180 makes circles get much bigger as map is zoomed in. More stops can be added for more granular circle size control.
             },
             // color circles by ethnicity, using data-driven styles
             'circle-color': {
@@ -133,14 +136,16 @@ map.addSource("project", {
         'id': 'projecttext',
         'source': 'project',
         'type': 'symbol',
-        'minzoom': 14,
+        'minzoom': 14, //building labels show after zooming in past 14
         layout: {
-          'text-field': "{Proj_Name}",
+          'text-field': "{Proj_Name}", //field of project.csv shown as label
           'text-anchor': "bottom-left"
         },
       });
 
-var toggleableLayerIds = [ 'ward', 'tract','neighborhood','zip','zillow' ];
+//the below should be changed to mutually exclusive selections rather than toggles
+
+var toggleableLayerIds = [ 'ward', 'tract','neighborhood','zip','zillow' ]; 
 
 for (var i = 0; i < toggleableLayerIds.length; i++) {
     var id = toggleableLayerIds[i];
@@ -175,7 +180,17 @@ map.on('click', function (e) {
 	  var building = map.queryRenderedFeatures(e.point, {
 	 
 	  });
-	      document.getElementById('pd').innerHTML = "<h3><strong>" + building[0].properties.Proj_Addre +"</strong><br>"+building[0].properties.Proj_Name + "<br><br>" + "</h3><p>" + "Owner: " + building[0].properties.Hud_Own_Name +"<br>"+"Cluster Name: "+ building[0].properties.Cluster_tr2000_name+"<br>"+"HUD Owner Name: " + building[0].properties.Hud_Own_Name+"<br>"+"HUD Owner Type: " + building[0].properties.Hud_Own_Type +"<br>"+"HUD Manager Name: " + building[0].properties.Hud_Mgr_Name+"<br>"+"HUD Manager Type: " + building[0].properties.Hud_Mgr_Type +"<br><br><strong>"+"At Risk: "+"</strong>"+ building[0].properties.Cat_At_Risk+"<br>"+building[0].properties.Category_Code +"</p>";
+        //Display building properties when clicking on building
+	      document.getElementById('pd').innerHTML = "<h3><strong>" + building[0].properties.Proj_Addre
+           +"</strong><br>"+building[0].properties.Proj_Name
+           +"<br><br>" + "</h3><p>" + "Owner: " + building[0].properties.Hud_Own_Name 
+           +"<br>"+"Cluster Name: "+ building[0].properties.Cluster_tr2000_name
+           +"<br>"+"HUD Owner Name: " + building[0].properties.Hud_Own_Name
+           +"<br>"+"HUD Owner Type: " + building[0].properties.Hud_Own_Type 
+           +"<br>"+"HUD Manager Name: " + building[0].properties.Hud_Mgr_Name
+           +"<br>"+"HUD Manager Type: " + building[0].properties.Hud_Mgr_Type 
+           +"<br><br><strong>"+"At Risk: "+"</strong>"+ building[0].properties.Cat_At_Risk
+           +"<br>"+building[0].properties.Category_Code +"</p>";
 
 	});
 
